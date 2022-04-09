@@ -35,24 +35,36 @@ class SequenceGeneration():
         dctVs = igor_genes_to_idx(self.genomic_data, "V")
         dctJs = igor_genes_to_idx(self.genomic_data, "J")
 
-        if Vs is None:
-            self.iVs = range(self.generative_model.PV.shape[0])
-        else:
-            self.iVs = [dctVs[vv] for v in Vs for vv in gene_map(v, self.processing.genomic_data)]
-        if Js is None:
-            self.iJs = range(self.generative_model.PDJ.shape[1])
-        else:
-            self.iJs = [dctVs[jj] for j in Js for jj in gene_map(j, self.processing.genomic_data)]
         
         self.gen = None
         with tempfile.NamedTemporaryFile() as tmp:
             # write a temporary file in Igor format
-            if not self.write_restricted_recombination_model(tmp.name):
-                Exception("Error during model creation")
             if recombination_type == "VDJ":
+                if Vs is None:
+                    self.iVs = range(self.generative_model.PV.shape[0])
+                else:
+                    self.iVs = [dctVs[vv] for v in Vs for vv in gene_map(v, self.processing.genomic_data)]
+                if Js is None:
+                    self.iJs = range(self.generative_model.PDJ.shape[1])
+                else:
+                    self.iJs = [dctVs[jj] for j in Js for jj in gene_map(j, self.processing.genomic_data)]
+                if not self.write_restricted_recombination_model_VDJ(tmp.name):
+                    Exception("Error during model creation")
                 self.gen = sequence_generation.SequenceGenerationVDJ(tmp.name)
             elif recombination_type == "VJ":
-                Exception("Not implemented yet")
+                if Vs is None:
+                    self.iVs = range(self.generative_model.PVJ.shape[0])
+                else:
+                    self.iVs = [dctVs[vv] for v in Vs
+                                for vv in gene_map(v, self.processing.genomic_data)]
+                if Js is None:
+                    self.iJs = range(self.generative_model.PVJ.shape[1])
+                else:
+                    self.iJs = [dctVs[jj] for j in Js
+                                for jj in gene_map(j, self.processing.genomic_data)]
+                if not self.write_restricted_recombination_model_VJ(tmp.name):
+                    Exception("Error during model creation")
+                self.gen = sequence_generation.SequenceGenerationVJ(tmp.name)
             else:
                 print('Unrecognized recombination type, should be "VDJ" or "VJ"')
 
@@ -85,14 +97,10 @@ class SequenceGeneration():
         """
         return self.gen.generate(False)
 
-    def write_restricted_recombination_model(self,
+    def write_restricted_recombination_model_VDJ(self,
                                              filename):
         """ Write a file containing all the data related with the
         recombination model.
-        Example of use:
-        import pyalice as pya
-        v = "IGHV03"
-        j = "IGHJ04"
         Return true if everything went well.
         """
         PV = self.generative_model.PV
@@ -208,6 +216,93 @@ class SequenceGeneration():
 
             print("# First nucleotide bias DJ", file=fw)
             print(*first_nt_bias_insDJ, file=fw)
+
+            print("# Error rate", file=fw)
+            print(error_rate, file=fw)
+
+            print("# Thymus selection parameter", file=fw)
+            print(1., file=fw)
+
+            print("# Conserved J residues", file=fw)
+            print("F V W", file=fw)
+
+        return True
+
+
+
+    def write_restricted_recombination_model_VJ(self,
+                                             filename):
+        """ Write a file containing all the data related with the
+        recombination model (VJ version).
+        Return true if everything went well.
+        """
+        PVJ = self.generative_model.PVJ
+        PinsVJ = self.generative_model.PinsVJ
+        PdelV_given_V = self.generative_model.PdelV_given_V
+        PdelJ_given_J = self.generative_model.PdelJ_given_J
+
+        PVJ = PVJ[np.ix_(self.iVs, self.iJs)]
+
+        if(np.sum(PVJ) == 0.):
+            return False
+
+        PVJ /= np.sum(PVJ)
+
+        PdelV_given_V = self.generative_model.PdelV_given_V[:,
+                                                            self.iVs]
+        PdelJ_given_J = self.generative_model.PdelJ_given_J[:,
+                                                            self.iJs]
+
+        if self.generative_model.first_nt_bias_insVJ is None:
+            first_nt_bias_insVJ = calc_steady_state_dist(
+                self.generative_model.Rvj)
+        else:
+            first_nt_bias_insVJ = self.generative_model.first_nt_bias_insVJ
+
+        error_rate = self.error_rate
+
+        # Write the file
+        with open(filename, "w") as fw:
+            # Start by writing out the V, D and J genes
+            print("# V genes", file=fw)
+            print(len(self.iVs), file=fw)
+            for iV in self.iVs:
+                print(self.genomic_data.cutV_genomic_CDR3_segs[iV], file=fw)
+
+            print("# J genes", file=fw)
+            print(len(self.iJs), file=fw)
+            for iJ in self.iJs:
+                print(self.genomic_data.cutJ_genomic_CDR3_segs[iJ], file=fw)
+
+            # Now write all the probabilities
+            print("# P(V, J)", file=fw)
+            print(*PVJ.shape, file=fw)
+            for x in PVJ:
+                print(*x, file=fw, end=" ")
+            print(file=fw)
+
+            print("# P(delV | V)", file=fw)
+            print(*PdelV_given_V.transpose().shape, file=fw)
+            for x in PdelV_given_V.transpose():
+                print(*x, file=fw)
+
+            print("# P(delJ | J)", file=fw)
+            print(*PdelJ_given_J.transpose().shape, file=fw)
+            for x in PdelJ_given_J.transpose():
+                print(*x, file=fw)
+
+            print("# P(insVJ)", file=fw)
+            print(len(PinsVJ), file=fw)
+            print(*PinsVJ, file=fw)
+
+            print("# Markov VJ", file=fw)
+            for i in range(4):
+                for j in range(4):
+                    print(self.generative_model.Rvj[j, i], file=fw, end=" ")
+            print(file=fw)
+
+            print("# First nucleotide bias VJ", file=fw)
+            print(*first_nt_bias_insVJ, file=fw)
 
             print("# Error rate", file=fw)
             print(error_rate, file=fw)
