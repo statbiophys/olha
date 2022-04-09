@@ -12,7 +12,7 @@ pip install olha
 
 ## Example
 
-```{py}
+```python
 import olga
 import olga.sequence_generation
 import olga.load_model
@@ -39,7 +39,7 @@ olga_gen = olga.sequence_generation.SequenceGenerationVDJ(generative_model, geno
 ```
 
 ## Comparison
-```
+```py
 import timeit
 olha_gen = olha.SequenceGeneration(genomic_data, generative_model, error_rate=0.1)
 olga_gen = olga.sequence_generation.SequenceGenerationVDJ(generative_model, genomic_data)
