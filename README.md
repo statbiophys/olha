@@ -1,5 +1,5 @@
 # olha
-A package to generate TCR/BCR sequences fast, based on [olga](https://github.com/statbiophys/OLGA). Use the same syntax as olga but is up to 60x faster and can optionally generate non-functional sequences and include point-mutation "sequencing" errors.
+A package to generate TCR/BCR sequences fast, based on [olga](https://github.com/statbiophys/OLGA). Use the same syntax as olga but is up to 20x faster and can optionally generate non-functional sequences and include point-mutation "sequencing" errors.
 
 Written in C++, interface with python3 via pybind11.
 
@@ -12,7 +12,7 @@ pip install olha
 
 ## Example
 
-```{py}
+```python
 import olga
 import olga.sequence_generation
 import olga.load_model
@@ -39,7 +39,7 @@ olga_gen = olga.sequence_generation.SequenceGenerationVDJ(generative_model, geno
 ```
 
 ## Comparison
-```
+```py
 import timeit
 olha_gen = olha.SequenceGeneration(genomic_data, generative_model, error_rate=0.1)
 olga_gen = olga.sequence_generation.SequenceGenerationVDJ(generative_model, genomic_data)
