@@ -1,14 +1,9 @@
 #!/usr/bin/env python3
 
 import itertools
-import math
 import os
 import re
 import numpy as np
-from random import random
-from hashlib import md5
-from numba import jit
-import pandas as pd
 
 bases = "TCAG"
 codons = [a + b + c for a in bases for b in bases for c in bases]

@@ -12,12 +12,11 @@ pip install olha
 
 ## Example
 
-```python
+```py
 import olga
 import olga.sequence_generation
 import olga.load_model
 import olha
-
 
 ## olga model loading
 params_file_name = f'{olga.__path__[0]}/default_models/human_T_beta/model_params.txt'

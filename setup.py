@@ -105,6 +105,7 @@ class BuildExt(build_ext):
 setup(name='olha',
       version=__version__,
       description='Fast generation of TCR/BCR sequences with olga',
+      long_description_content_type="text/markdown",
       long_description=long_description,
       url='',
       author='Thomas Dupic',
