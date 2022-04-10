@@ -31,10 +31,8 @@ generative_model.load_and_process_igor_model(marginals_file_name)
 
 # sequence generation
 olha_gen = olha.SequenceGeneration(genomic_data, generative_model, error_rate=0.1)
-olga_gen.gen_rnd_prod_CDR3()
+olha_gen.gen_rnd_prod_CDR3()
 # ('TGCGCCAGCAGCTCCATGGACGGCTCCGAAAAACTGTTTTTT', 'CASSSMDGSEKLFF', 49, 3)
-
-olga_gen = olga.sequence_generation.SequenceGenerationVDJ(generative_model, genomic_data)
 ```
 
 ## Comparison
