@@ -47,7 +47,7 @@ class SequenceGeneration():
                 if Js is None:
                     self.iJs = range(self.generative_model.PDJ.shape[1])
                 else:
-                    self.iJs = [dctVs[jj] for j in Js for jj in gene_map(j, self.genomic_data)]
+                    self.iJs = [dctJs[jj] for j in Js for jj in gene_map(j, self.genomic_data)]
                 if not self.write_restricted_recombination_model_VDJ(tmp.name):
                     Exception("Error during model creation")
                 self.gen = sequence_generation.SequenceGenerationVDJ(tmp.name)
