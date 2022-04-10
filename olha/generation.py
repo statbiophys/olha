@@ -43,11 +43,11 @@ class SequenceGeneration():
                 if Vs is None:
                     self.iVs = range(self.generative_model.PV.shape[0])
                 else:
-                    self.iVs = [dctVs[vv] for v in Vs for vv in gene_map(v, self.processing.genomic_data)]
+                    self.iVs = [dctVs[vv] for v in Vs for vv in gene_map(v, self.genomic_data)]
                 if Js is None:
                     self.iJs = range(self.generative_model.PDJ.shape[1])
                 else:
-                    self.iJs = [dctVs[jj] for j in Js for jj in gene_map(j, self.processing.genomic_data)]
+                    self.iJs = [dctVs[jj] for j in Js for jj in gene_map(j, self.genomic_data)]
                 if not self.write_restricted_recombination_model_VDJ(tmp.name):
                     Exception("Error during model creation")
                 self.gen = sequence_generation.SequenceGenerationVDJ(tmp.name)
@@ -56,12 +56,12 @@ class SequenceGeneration():
                     self.iVs = range(self.generative_model.PVJ.shape[0])
                 else:
                     self.iVs = [dctVs[vv] for v in Vs
-                                for vv in gene_map(v, self.processing.genomic_data)]
+                                for vv in gene_map(v, self.genomic_data)]
                 if Js is None:
                     self.iJs = range(self.generative_model.PVJ.shape[1])
                 else:
                     self.iJs = [dctVs[jj] for j in Js
-                                for jj in gene_map(j, self.processing.genomic_data)]
+                                for jj in gene_map(j, self.genomic_data)]
                 if not self.write_restricted_recombination_model_VJ(tmp.name):
                     Exception("Error during model creation")
                 self.gen = sequence_generation.SequenceGenerationVJ(tmp.name)
