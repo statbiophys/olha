@@ -6,6 +6,7 @@ import tempfile
 from olga.utils import calc_steady_state_dist
 from olha.utils import gene_map, igor_genes_to_idx
 import numpy as np
+import random
 
 class SequenceGeneration():
     """ Class that defines the null distribution of the sequences
@@ -18,7 +19,7 @@ class SequenceGeneration():
     """
 
     def __init__(self, genomic_data, generative_model,
-                 Vs=None, Js=None, error_rate=0.):
+                 Vs=None, Js=None, error_rate=0., seed=None):
         """ Load the model, and generate sequence
         @ Arguments:
         * genomic_data, generative_model: olga model
@@ -27,6 +28,9 @@ class SequenceGeneration():
         TRBV1 will use all TRBV1-* genes.
         * error_rate: per base pair error rate for the sequences
         """
+        if seed is not None:
+            random.seed(seed)
+
         self.error_rate = error_rate
         self.genomic_data = genomic_data
         self.generative_model = generative_model
@@ -50,7 +54,9 @@ class SequenceGeneration():
                     self.iJs = [dctJs[jj] for j in Js for jj in gene_map(j, self.genomic_data)]
                 if not self.write_restricted_recombination_model_VDJ(tmp.name):
                     Exception("Error during model creation")
-                self.gen = sequence_generation.SequenceGenerationVDJ(tmp.name)
+                self.gen = sequence_generation.SequenceGenerationVDJ(tmp.name,
+                                                                    random.randrange(0, 1000000000),
+                                                                    False)
             elif recombination_type == "VJ":
                 if Vs is None:
                     self.iVs = range(self.generative_model.PVJ.shape[0])
@@ -64,7 +70,9 @@ class SequenceGeneration():
                                 for jj in gene_map(j, self.genomic_data)]
                 if not self.write_restricted_recombination_model_VJ(tmp.name):
                     Exception("Error during model creation")
-                self.gen = sequence_generation.SequenceGenerationVJ(tmp.name)
+                self.gen = sequence_generation.SequenceGenerationVJ(tmp.name,
+                                                                    random.randrange(0, 1000000000),
+                                                                    False)
             else:
                 print('Unrecognized recombination type, should be "VDJ" or "VJ"')
 

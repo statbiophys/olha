@@ -1,9 +1,13 @@
 #include "SequenceGeneration.h"
 
 
-SequenceGenerationVDJ::SequenceGenerationVDJ(const std::string& file_gen){
-  random_generator = std::mt19937_64(std::random_device()());
-  verbose = false; // x_verbose;
+SequenceGenerationVDJ::SequenceGenerationVDJ(const std::string& file_gen, uint64_t seed , bool verbose_arg){
+  if(seed)
+    random_generator = std::mt19937_64(seed);
+  else
+    random_generator = std::mt19937_64(std::random_device()());
+
+  verbose = verbose_arg; 
   load_file(file_gen);
 }
 
@@ -308,8 +312,11 @@ std::tuple<std::string, std::string, std::size_t, std::size_t> SequenceGeneratio
 
 
 
-SequenceGenerationVJ::SequenceGenerationVJ(const std::string& file_gen){
-  random_generator = std::mt19937_64(std::random_device()());
+SequenceGenerationVJ::SequenceGenerationVJ(const std::string& file_gen, uint64_t seed, bool verbose_arg){
+  if(seed)
+    random_generator = std::mt19937_64(seed);
+  else
+    random_generator = std::mt19937_64(std::random_device()());
   verbose = false; // x_verbose;
   load_file(file_gen);
 }

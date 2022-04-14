@@ -14,7 +14,7 @@ PYBIND11_MODULE(sequence_generation, m) {
     )pbdoc";
 
     py::class_<SequenceGenerationVDJ>(m, "SequenceGenerationVDJ")
-        .def(py::init<const std::string &>(), "Create an object SequenceGenerationVDJ"
+      .def(py::init<const std::string &, uint64_t, bool>(), "Create an object SequenceGenerationVDJ"
              " that can generate VDJ sequences")
         .def("generate", &SequenceGenerationVDJ::generate,
              "Generate a random nucleotide sequence" )
@@ -23,7 +23,7 @@ PYBIND11_MODULE(sequence_generation, m) {
         ;
 
     py::class_<SequenceGenerationVJ>(m, "SequenceGenerationVJ")
-        .def(py::init<const std::string &>(), "Create an object SequenceGenerationVJ"
+        .def(py::init<const std::string &, uint64_t, bool>(), "Create an object SequenceGenerationVJ"
              " that can generate VJ sequences")
         .def("generate", &SequenceGenerationVJ::generate,
              "Generate a random nucleotide sequence" )

@@ -2,6 +2,7 @@
 #define SEQUENCE_GENERATION
 
 #include "utils.h"
+#include <optional>
 
 class SequenceGenerationVDJ{
     private:
@@ -35,7 +36,7 @@ class SequenceGenerationVDJ{
         double thymic_Q; // useless now, but removing it may be a pain
 
     public:
-        SequenceGenerationVDJ(const std::string& file_gen);
+       SequenceGenerationVDJ(const std::string& file_gen, uint64_t seed, bool verbose_arg);
         void load_file(const std::string& file_gen);
         std::tuple<std::string, std::string, std::size_t, std::size_t> generate(bool functional);
 
@@ -66,7 +67,7 @@ class SequenceGenerationVJ{
         double thymic_Q; // useless now, but removing it may be a pain
 
     public:
-        SequenceGenerationVJ(const std::string& file_gen);
+        SequenceGenerationVJ(const std::string& file_gen, uint64_t seed, bool verbose_arg);
         void load_file(const std::string& file_gen);
         std::tuple<std::string, std::string, std::size_t, std::size_t> generate(bool functional);
 
