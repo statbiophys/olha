@@ -8,6 +8,7 @@ from olha.utils import gene_map, igor_genes_to_idx
 import numpy as np
 import random
 
+
 class SequenceGeneration():
     """ Class that defines the null distribution of the sequences
     @Members:
@@ -39,7 +40,6 @@ class SequenceGeneration():
         dctVs = igor_genes_to_idx(self.genomic_data, "V")
         dctJs = igor_genes_to_idx(self.genomic_data, "J")
 
-        
         self.gen = None
         with tempfile.NamedTemporaryFile() as tmp:
             # write a temporary file in Igor format
@@ -47,16 +47,19 @@ class SequenceGeneration():
                 if Vs is None:
                     self.iVs = range(self.generative_model.PV.shape[0])
                 else:
-                    self.iVs = [dctVs[vv] for v in Vs for vv in gene_map(v, self.genomic_data)]
+                    self.iVs = [dctVs[vv]
+                                for v in Vs for vv in gene_map(v, self.genomic_data)]
                 if Js is None:
                     self.iJs = range(self.generative_model.PDJ.shape[1])
                 else:
-                    self.iJs = [dctJs[jj] for j in Js for jj in gene_map(j, self.genomic_data)]
+                    self.iJs = [dctJs[jj]
+                                for j in Js for jj in gene_map(j, self.genomic_data)]
                 if not self.write_restricted_recombination_model_VDJ(tmp.name):
                     Exception("Error during model creation")
                 self.gen = sequence_generation.SequenceGenerationVDJ(tmp.name,
-                                                                    random.randrange(0, 1000000000),
-                                                                    False)
+                                                                     random.randrange(
+                                                                         0, 1000000000),
+                                                                     False)
             elif recombination_type == "VJ":
                 if Vs is None:
                     self.iVs = range(self.generative_model.PVJ.shape[0])
@@ -71,42 +74,54 @@ class SequenceGeneration():
                 if not self.write_restricted_recombination_model_VJ(tmp.name):
                     Exception("Error during model creation")
                 self.gen = sequence_generation.SequenceGenerationVJ(tmp.name,
-                                                                    random.randrange(0, 1000000000),
+                                                                    random.randrange(
+                                                                        0, 1000000000),
                                                                     False)
             else:
                 print('Unrecognized recombination type, should be "VDJ" or "VJ"')
 
+        # make the inverse mapping for V/J
+        if Vs is None:
+            self.invV = {ii: v[0]
+                         for ii, v in enumerate(self.genomic_data.genV)}
+        else:
+            self.invV = {ii: vname for ii, vname
+                         in enumerate(vv for v in Vs
+                                      for vv in gene_map(v, self.genomic_data)
+                                      )}
+        if Js is None:
+            self.invJ = {ii: j[0]
+                         for ii, j in enumerate(self.genomic_data.genV)}
+        else:
+            self.invJ = {ii: jname for ii, jname
+                         in enumerate(jj for j in Js
+                                      for jj in gene_map(j, self.genomic_data)
+                                      )}
 
     def gen_rnd_prod_CDR3(self):
         """ Use Olga to generate a valid sequence with the
         generation probabilities of the model inferred by
         IGoR. Olga does not add errors, so we add them by
         hand.
-        @ Arguments:
-        * self.error_rate: probability of error on one nucleotide
-          (between 0 and 1)
-        * self.Vs, self.Js: limit the number of V & J genes allowed.
         @ Return:
-        A random aa sequence
+        (nt, aa, V, J)
         """
-        return self.gen.generate(True)
+        nt, aa, V, J = self.gen.generate(True)
+        return nt, aa, self.invV[V], self.invJ[J]
 
     def gen_rnd_CDR3(self):
         """ Use Olga to generate a valid sequence with the
         generation probabilities of the model inferred by
         IGoR. Olga does not add errors, so we add them by
         hand.
-        @ Arguments:
-        * self.error_rate: probability of error on one nucleotide
-          (between 0 and 1)
-        * self.Vs, self.Js: limit the number of V & J genes allowed.
         @ Return:
-        A random aa sequence
+        (nt, aa, V, J)
         """
-        return self.gen.generate(False)
+        nt, aa, V, J = self.gen.generate(False)
+        return nt, aa, self.invV[V], self.invJ[J]
 
     def write_restricted_recombination_model_VDJ(self,
-                                             filename):
+                                                 filename):
         """ Write a file containing all the data related with the
         recombination model.
         Return true if everything went well.
@@ -236,10 +251,8 @@ class SequenceGeneration():
 
         return True
 
-
-
     def write_restricted_recombination_model_VJ(self,
-                                             filename):
+                                                filename):
         """ Write a file containing all the data related with the
         recombination model (VJ version).
         Return true if everything went well.

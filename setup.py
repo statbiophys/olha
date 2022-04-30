@@ -8,7 +8,8 @@ this_directory = Path(__file__).parent
 long_description = (this_directory / "README.md").read_text()
 
 data_files_to_include = [('', ['README.md', 'LICENSE'])]
-__version__ = '0.0.6'
+__version__ = '0.0.7'
+
 
 class get_pybind_include(object):
     """Helper class to determine the pybind11 include path
@@ -97,10 +98,12 @@ class BuildExt(build_ext):
                 opts.append('-fvisibility=hidden')
 
         for ext in self.extensions:
-            ext.define_macros = [('VERSION_INFO', '"{}"'.format(self.distribution.get_version()))]
+            ext.define_macros = [
+                ('VERSION_INFO', '"{}"'.format(self.distribution.get_version()))]
             ext.extra_compile_args = opts
             ext.extra_link_args = link_opts
         build_ext.build_extensions(self)
+
 
 setup(name='olha',
       version=__version__,
@@ -112,21 +115,21 @@ setup(name='olha',
       author_email='dupic.thomas@gmail.com',
       license='MIT',
       classifiers=[
-            'Development Status :: 3 - Alpha',
-            'Intended Audience :: Developers',
-            'Intended Audience :: Healthcare Industry',
-            'Intended Audience :: Science/Research',
-            'Topic :: Scientific/Engineering :: Bio-Informatics',
-            'Topic :: Scientific/Engineering :: Physics',
-            'Topic :: Scientific/Engineering :: Medical Science Apps.',
-            'Natural Language :: English',
-            'Programming Language :: Python :: 3.6',
-            ],
+          'Development Status :: 3 - Alpha',
+          'Intended Audience :: Developers',
+          'Intended Audience :: Healthcare Industry',
+          'Intended Audience :: Science/Research',
+          'Topic :: Scientific/Engineering :: Bio-Informatics',
+          'Topic :: Scientific/Engineering :: Physics',
+          'Topic :: Scientific/Engineering :: Medical Science Apps.',
+          'Natural Language :: English',
+          'Programming Language :: Python :: 3.6',
+      ],
       packages=['olha'],
       setup_requires=['olga>=1.2.4', 'pybind11>=2.5.0'],
       cmdclass={'build_ext': BuildExt},
       ext_modules=ext_modules,
-      package_data = { },
-      data_files = data_files_to_include,
+      package_data={},
+      data_files=data_files_to_include,
       include_package_data=True,
       zip_safe=False)
