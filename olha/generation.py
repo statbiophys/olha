@@ -91,7 +91,7 @@ class SequenceGeneration():
                                       )}
         if Js is None:
             self.invJ = {ii: j[0]
-                         for ii, j in enumerate(self.genomic_data.genV)}
+                         for ii, j in enumerate(self.genomic_data.genJ)}
         else:
             self.invJ = {ii: jname for ii, jname
                          in enumerate(jj for j in Js
