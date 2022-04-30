@@ -7,7 +7,7 @@ SequenceGenerationVDJ::SequenceGenerationVDJ(const std::string& file_gen, uint64
   else
     random_generator = std::mt19937_64(std::random_device()());
 
-  verbose = verbose_arg; 
+  verbose = verbose_arg;
   load_file(file_gen);
 }
 
@@ -58,7 +58,7 @@ void SequenceGenerationVDJ::load_file(const std::string& file_gen){
 	probas_V.push_back(p);
       }
       d_V = DiscreteDistribution(probas_V.begin(), probas_V.end());
-      
+
       std::getline(file, line); // # P(D, J)
       std::getline(file, line); // nbD nbJ
       std::getline(file, line);
@@ -87,7 +87,7 @@ void SequenceGenerationVDJ::load_file(const std::string& file_gen){
 	}
 	d_delV.push_back(DiscreteDistribution(delV.begin(), delV.end()));
       }
-      
+
 
       std::getline(file, line); // # P(delJ|J)
       std::getline(file, line); // nb_J  nb_delJ
@@ -105,7 +105,7 @@ void SequenceGenerationVDJ::load_file(const std::string& file_gen){
 	}
 	d_delJ.push_back(DiscreteDistribution(delJ.begin(), delJ.end()));
       }
-      
+
 
       std::getline(file, line); // # P(delDl, delDr | D)
       std::getline(file, line); // nb_delDr nb_delDl nb_D
@@ -122,9 +122,9 @@ void SequenceGenerationVDJ::load_file(const std::string& file_gen){
 	}
 	d_delD3_delD5.push_back(DiscreteDistribution(delD.begin(), delD.end()));
       }
-      
-      
-	
+
+
+
       std::getline(file, line); // # P(insVD)
       std::getline(file, line); // nb_insVD
       iss = std::istringstream(line);
@@ -163,7 +163,7 @@ void SequenceGenerationVDJ::load_file(const std::string& file_gen){
       }
 
       markov_VD = MarkovDNA(first_nuc_VD, markov_VD_mat);
-      
+
       std::getline(file, line); // # P(insDJ)
       std::getline(file, line); // nb_insDJ
       iss = std::istringstream(line);
@@ -211,7 +211,7 @@ void SequenceGenerationVDJ::load_file(const std::string& file_gen){
       std::getline(file, line);
       iss = std::istringstream(line);
       if(not (iss >> thymic_Q)) throw std::runtime_error("Invalid file");
-      
+
 
       // std::getline(file, line); // # Conserved J residues
       // std::getline(file, line);
@@ -245,19 +245,19 @@ std::tuple<std::string, std::string, std::size_t, std::size_t> SequenceGeneratio
     std::size_t dj_index = d_DJ.generate(random_generator);
     std::size_t d_index = dj_index / nb_J;
     std::size_t j_index = dj_index % nb_J;
-    
+
     dna seqV = seq_V_CDR3[v_index];
     std::size_t lenV = seqV.size();
     dna seqD = seq_D_CDR3[ d_index ];
     dna seqJ = seq_J_CDR3[ j_index ];
-    
+
     std::size_t lenD = seqD.size();
     std::size_t lenJ = seqJ.size();
     std::size_t delV = d_delV[v_index].generate(random_generator);
-    
+
     if (lenV <= delV) // maybe remove
       continue;
-    
+
     std::size_t delD = d_delD3_delD5[d_index].generate(random_generator);
     std::size_t delD5 = delD / nb_delDr;
     std::size_t delD3 = delD % nb_delDr;
@@ -265,7 +265,7 @@ std::tuple<std::string, std::string, std::size_t, std::size_t> SequenceGeneratio
 
     if(lenD < (delD3 + delD5) or lenJ < delJ) //same
       continue;
-  
+
     std::size_t insVD = d_insVD.generate(random_generator);
     std::size_t insDJ = d_insDJ.generate(random_generator);
 
@@ -276,7 +276,7 @@ std::tuple<std::string, std::string, std::size_t, std::size_t> SequenceGeneratio
     // Generate the insertions
     dna ins_seq_VD = markov_VD.generate(insVD, random_generator);
     dna ins_seq_DJ = markov_DJ.generate(insDJ, random_generator);
-    
+
     // Generate the sequence
     dna seq;
     seq.insert(seq.end(), seqV.begin(), seqV.end() - delV);
@@ -287,17 +287,18 @@ std::tuple<std::string, std::string, std::size_t, std::size_t> SequenceGeneratio
 
     // translate
     amino seq_aa = translate(seq);
-    
+
     // Check for stop codon
     if(functional and std::find(seq_aa.begin(), seq_aa.end(), 0) != seq_aa.end())
       continue;
 
+    // removed to match olga/sonia behavior
     // Check for conserved extremities
-    if(functional and seq_aa[0] != 2)
-      continue;
-    amino_acid last = seq_aa.back();
-    if(functional and last != 5 and last != 18 and last != 19)
-      continue;
+    // if(functional and seq_aa[0] != 2)
+    //   continue;
+    // amino_acid last = seq_aa.back();
+    // if(functional and last != 5 and last != 18 and last != 19)
+    //   continue;
 
     // apply error rate, on the nucleotide sequence
     add_error(seq, error_rate, random_generator);
@@ -375,7 +376,7 @@ void SequenceGenerationVJ::load_file(const std::string& file_gen){
 	}
 	d_delV.push_back(DiscreteDistribution(delV.begin(), delV.end()));
       }
-      
+
 
       std::getline(file, line); // # P(delJ|J)
       std::getline(file, line); // nb_J  nb_delJ
@@ -393,7 +394,7 @@ void SequenceGenerationVJ::load_file(const std::string& file_gen){
 	}
 	d_delJ.push_back(DiscreteDistribution(delJ.begin(), delJ.end()));
       }
-      	
+
       std::getline(file, line); // # P(insVJ)
       std::getline(file, line); // nb_insVJ
       iss = std::istringstream(line);
@@ -432,7 +433,7 @@ void SequenceGenerationVJ::load_file(const std::string& file_gen){
       }
 
       markov_VJ = MarkovDNA(first_nuc_VJ, markov_VJ_mat);
-      
+
       std::getline(file, line); // # Error rate
       std::getline(file, line);
       iss = std::istringstream(line);
@@ -442,7 +443,7 @@ void SequenceGenerationVJ::load_file(const std::string& file_gen){
       std::getline(file, line);
       iss = std::istringstream(line);
       if(not (iss >> thymic_Q)) throw std::runtime_error("Invalid file");
-      
+
 
       // TODO: should reimplement that at some point
       // std::getline(file, line); // # Conserved J residues
@@ -474,22 +475,22 @@ std::tuple<std::string, std::string, std::size_t, std::size_t> SequenceGeneratio
     std::size_t vj_index = d_VJ.generate(random_generator);
     std::size_t v_index = vj_index / nb_J;
     std::size_t j_index = vj_index % nb_J;
-    
+
     dna seqV = seq_V_CDR3[v_index];
     std::size_t lenV = seqV.size();
     dna seqJ = seq_J_CDR3[ j_index ];
-    
+
     std::size_t lenJ = seqJ.size();
     std::size_t delV = d_delV[v_index].generate(random_generator);
-    
+
     if (lenV < delV) // maybe remove
       continue;
-    
+
     std::size_t delJ = d_delJ[j_index].generate(random_generator);
 
     if(lenJ < delJ) //same
       continue;
-  
+
     std::size_t insVJ = d_insVJ.generate(random_generator);
 
     // Check if the sequence is in-frame
@@ -507,17 +508,18 @@ std::tuple<std::string, std::string, std::size_t, std::size_t> SequenceGeneratio
 
     // translate
     amino seq_aa = translate(seq);
-    
+
     // Check for stop codon
     if(functional and std::find(seq_aa.begin(), seq_aa.end(), 0) != seq_aa.end())
       continue;
 
-    // Check for conserved extremities
-    if(functional and seq_aa[0] != 2)
-      continue;
-    amino_acid last = seq_aa.back();
-    if(functional and last != 5 and last != 18 and last != 19)
-      continue;
+    // Removed to match olga / sonia behaviour
+    // // Check for conserved extremities
+    // if(functional and seq_aa[0] != 2)
+    //   continue;
+    // amino_acid last = seq_aa.back();
+    // if(functional and last != 5 and last != 18 and last != 19)
+    //   continue;
 
     // apply error rate, on the nucleotide sequence
     add_error(seq, error_rate, random_generator);
