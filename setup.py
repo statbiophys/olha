@@ -8,7 +8,7 @@ this_directory = Path(__file__).parent
 long_description = (this_directory / "README.md").read_text()
 
 data_files_to_include = [('', ['README.md', 'LICENSE'])]
-__version__ = '0.0.9'
+__version__ = '0.1.0'
 
 
 class get_pybind_include(object):
