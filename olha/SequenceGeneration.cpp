@@ -292,10 +292,11 @@ std::tuple<std::string, std::string, std::size_t, std::size_t> SequenceGeneratio
     if(functional and std::find(seq_aa.begin(), seq_aa.end(), 0) != seq_aa.end())
       continue;
 
-    // removed to match olga/sonia behavior
-    // Check for conserved extremities
-    // if(functional and seq_aa[0] != 2)
-    //   continue;
+    // Check for conserved extremities (cysteine)
+    if(functional and seq_aa[0] != 2)
+      continue;
+
+    // removed to match olga behaviour
     // amino_acid last = seq_aa.back();
     // if(functional and last != 5 and last != 18 and last != 19)
     //   continue;
@@ -513,10 +514,12 @@ std::tuple<std::string, std::string, std::size_t, std::size_t> SequenceGeneratio
     if(functional and std::find(seq_aa.begin(), seq_aa.end(), 0) != seq_aa.end())
       continue;
 
+
+    // Check for conserved extremities (cysteine)
+    if(functional and seq_aa[0] != 2)
+      continue;
+
     // Removed to match olga / sonia behaviour
-    // // Check for conserved extremities
-    // if(functional and seq_aa[0] != 2)
-    //   continue;
     // amino_acid last = seq_aa.back();
     // if(functional and last != 5 and last != 18 and last != 19)
     //   continue;
